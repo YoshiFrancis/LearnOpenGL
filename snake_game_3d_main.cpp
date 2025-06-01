@@ -7,20 +7,14 @@
 #include "texture.hpp"
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include "snake_game_3d.hpp"
 
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
 float opacity = 1.0f;
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
-float deltaTime = 0.0f; // Time between current frame and last frame
-float lastFrame = 0.0f; // Time of last frame
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
@@ -60,52 +54,9 @@ int main() {
   textures.setTextureParams(1);
   textures.configureShader(shader);
 
-  float vertices[] = {
-      // positions         // texcoords
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 0
-      0.5f,  -0.5f, -0.5f, 1.0f, 0.0f, // 1
-      0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, // 2
-      -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, // 3
-      -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, // 4
-      0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, // 5
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // 6
-      -0.5f, 0.5f,  0.5f,  0.0f, 1.0f  // 7
-  };
-
   // with a cube, I can make a head (no front), tail (no back), and body (no
   // front or back)
-  unsigned int cube_indicies[] = {
-      4, 5, 6, 6, 7, 4, // front
-      4, 7, 3, 3, 0, 4, // left
-      1, 5, 6, 6, 2, 1, // right
-      3, 2, 6, 6, 7, 3, // top
-      4, 0, 1, 1, 5, 4, // bottom
-      0, 1, 2, 2, 3, 0, // back
-  };
-
-  unsigned int VAO, VBO, EBO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
-
-  // for first triangle
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_indicies), cube_indicies,
-               GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(2 * sizeof(float)));
-  glEnableVertexAttribArray(2);
-
-  glEnable(GL_DEPTH_TEST);
-  glm::vec3 cubePositions[] = {
+    glm::vec3 cubePositions[] = {
       glm::vec3(1.0f, 0.1f, -5.0f),   glm::vec3(2.0f, 5.0f, -15.0f),
       glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
       glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
@@ -113,14 +64,6 @@ int main() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   while (!glfwWindowShouldClose(window)) {
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-
-    processInput(window);
-    glClearColor(0.5f, 0.75f, 0.8f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     textures.activate();
     shader.use();
 
@@ -150,11 +93,6 @@ int main() {
     glfwPollEvents();
   }
 
-  // cleanup
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
-
   glfwTerminate();
   return 0;
 }
@@ -163,20 +101,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
-
-  const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.ProcessKeyboard(FORWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.ProcessKeyboard(BACKWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.ProcessKeyboard(LEFT, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.ProcessKeyboard(RIGHT, deltaTime);
-}
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
   float xpos = static_cast<float>(xposIn);
   float ypos = static_cast<float>(yposIn);
