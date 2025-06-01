@@ -10,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "snake_game_3d.hpp"
+
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
 float opacity = 1.0f;
@@ -58,42 +60,6 @@ int main() {
   textures.setTextureParams(1);
   textures.configureShader(shader);
 
-  // float vertices[] = {-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f,
-  // -0.5f, 1.0f, 0.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-  // // separate
-  //
-  // 0.5f, 0.5f, -0.5f, 1.0f, 1.0f, -0.5f, 0.5f, -0.5f, 0.0f,
-  // 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-  //
-  // -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f,
-  // 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-  //
-  // 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, -0.5f, 0.5f, 0.5f, 0.0f,
-  // 1.0f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-  //
-  // -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -0.5f, 0.5f, -0.5f, 1.0f,
-  // 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-  //
-  // -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, 0.5f, 0.0f,
-  // 0.0f, -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-  //
-  // 0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, -0.5f, 1.0f,
-  // 1.0f, 0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-  //
-  // 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, 0.5f, 0.0f,
-  // 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-  //
-  // -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 1.0f,
-  // 1.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-  //
-  // 0.5f, -0.5f, 0.5f, 1.0f, 0.0f, -0.5f, -0.5f, 0.5f, 0.0f,
-  // 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-  //
-  // -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f,
-  // 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-  //
-  // 0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -0.5f, 0.5f, 0.5f, 0.0f,
-  // 0.0f, -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
   float vertices[] = {
       // positions         // texcoords
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 0
@@ -128,15 +94,6 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(head_indicies), head_indicies,
-  //              GL_STATIC_DRAW);
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(tail_indicies), tail_indicies,
-  //              GL_STATIC_DRAW);
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[2]);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(body_indicies), body_indicies,
-  //              GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_indicies), cube_indicies,
                GL_STATIC_DRAW);

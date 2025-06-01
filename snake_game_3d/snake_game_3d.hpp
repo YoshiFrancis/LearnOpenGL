@@ -1,8 +1,8 @@
 #ifndef SNAKE_GAME_3D_HPP
 #define SNAKE_GAME_3D_HPP
 
-#include "../texture.hpp"
 #include "QuadTree.hpp"
+#include "texture.hpp"
 
 class SnakeGame {
 private:
@@ -11,7 +11,6 @@ private:
 
   unsigned int VBO, VAO, EBO;
   Texture body, head, tail;
-  QuadTree world;
   unsigned int height, width;
   unsigned int apples_eaten = 0;
   unsigned int total_snake_length = 3;
@@ -40,9 +39,8 @@ private:
   void handle_input();
   void display();
   void gen_apple_pos();
-  const QuadTree &get_world() const;
-  glm::vec3 &get_apple_pos() const;
-  std::vector<glm::vec3> &get_snake_pos() const;
+  const glm::vec3 &get_apple_pos() const;
+  const std::vector<glm::vec3> &get_snake_pos() const;
 };
 
 #endif

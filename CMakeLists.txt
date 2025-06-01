@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.11)
 project(Setup)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# set you main file here
+add_executable(GraphicsMain snake_game_3d_main.cpp)
 
 include(FetchContent)
 
@@ -25,10 +27,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(glm)
 
-# set you main file here
-add_executable(GraphicsMain snake_game_3d_main.cpp)
 
 add_subdirectory(helpers)
 add_subdirectory(snake_game_3d)
 target_link_libraries(GraphicsMain PRIVATE Helpers)
-
+target_link_libraries(GraphicsMain PRIVATE SnakeGame)
