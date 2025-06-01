@@ -2,11 +2,13 @@
 
 #include <string>
 
-SnakeGame::SnakeGame(GLFWwindow* _window, std::string_view body_fp, std::string_view head_fp,
-        std::string_view tail_fp, unsigned int world_height,
-        unsigned int world_width)
-    : window(_window), body({std::string(body_fp)}), head({std::string(head_fp)}), tail({std::string(tail_fp)}), height(world_height), width(world_width), shaders("shader.vs", "shader.fs"), camera(glm::vec3(0.0f, 0.0f, 3.0f))
-{
+SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
+                     std::string_view head_fp, std::string_view tail_fp,
+                     unsigned int world_height, unsigned int world_width)
+    : window(_window), body({std::string(body_fp)}),
+      head({std::string(head_fp)}), tail({std::string(tail_fp)}),
+      height(world_height), width(world_width),
+      shaders("shader.vs", "shader.fs"), camera(glm::vec3(0.0f, 0.0f, 3.0f)) {
 
   float vertices[] = {
       // positions         // texcoords
@@ -52,108 +54,80 @@ SnakeGame::SnakeGame(GLFWwindow* _window, std::string_view body_fp, std::string_
   glEnable(GL_DEPTH_TEST);
 }
 
-SnakeGame::~SnakeGame() 
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+SnakeGame::~SnakeGame() {
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
 }
 
-void SnakeGame::begin() 
-{
-    loop();
-}
+void SnakeGame::begin() { loop(); }
 
-void SnakeGame::loop()
-{
-    while (!glfwWindowShouldClose(window))
-    {
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+void SnakeGame::loop() {
+  while (!glfwWindowShouldClose(window)) {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
 
-        // gets input from user and moves user acoordingly
-        handle_input();
+    // gets input from user and moves user acoordingly
+    handle_input();
 
-        if (try_snake_eat_apple())
-        {
-
-        }
-
-        if (try_handle_collision()) 
-        {
-            // TODO
-        }
-
-
-        display();
+    if (try_snake_eat_apple()) {
     }
-    end();
+
+    if (try_handle_collision()) {
+      // TODO
+    }
+
+    display();
+  }
+  end();
 }
 
-void SnakeGame::end()
-{
-    return;
-}
+void SnakeGame::end() { return; }
 
 // see if head collides with apple and return true if so
-bool SnakeGame::try_snake_eat_apple() 
-{
-
-}
+bool SnakeGame::try_snake_eat_apple() { return false; }
 
 // see if head collides with a body part and return true if so
-bool SnakeGame::try_handle_collision()
-{
-
-}
+bool SnakeGame::try_handle_collision() { return false; }
 
 // get input from user and handle snake velocity/positions accordingly
 // TODO
-void SnakeGame::handle_input()
-{
+void SnakeGame::handle_input() {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
   const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.ProcessKeyboard(FORWARD, deltaTime);
+    camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.ProcessKeyboard(BACKWARD, deltaTime);
+    camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.ProcessKeyboard(LEFT, deltaTime);
+    camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.ProcessKeyboard(RIGHT, deltaTime);
+    camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 }
-void SnakeGame::display()
-{
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void SnakeGame::display() {
+  glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // draw head and setup camera
-        // TODO
-        head.activate();
-        shaders.use();
+  // draw head and setup camera
+  // TODO
+  head.activate();
+  shaders.use();
 
-        // draw body
-        // TODO
-        body.activate();
-        shaders.use();
+  // draw body
+  // TODO
+  body.activate();
+  shaders.use();
 
-        // draw tail
-        // TODO
-        tail.activate();
-        shaders.use();
+  // draw tail
+  // TODO
+  tail.activate();
+  shaders.use();
 }
-void SnakeGame::gen_apple_pos()
-{
-
-}
-const glm::vec3 &SnakeGame::get_apple_pos() const
-{
-    return apple_pos;
-}
-const std::vector<glm::vec3> &SnakeGame::get_snake_pos() const
-{
-    return snake_body_pos;
+void SnakeGame::gen_apple_pos() {}
+const glm::vec3 &SnakeGame::get_apple_pos() const { return apple_pos; }
+const std::vector<glm::vec3> &SnakeGame::get_snake_pos() const {
+  return snake_body_pos;
 }

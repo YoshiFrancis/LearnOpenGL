@@ -18,7 +18,6 @@ FetchContent_MakeAvailable(glfw)
 
 target_link_libraries(GraphicsMain PRIVATE glfw)
 
-
 FetchContent_Declare(
 	glm
 	GIT_REPOSITORY	https://github.com/g-truc/glm.git
