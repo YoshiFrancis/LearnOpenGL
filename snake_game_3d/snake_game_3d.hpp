@@ -8,10 +8,12 @@
 
 #include <GLFW/glfw3.h>
 
+constexpr float fov = 45.0f;
+
 class SnakeGame {
 private:
   enum GAME_STATE { MAIN_MENU, GAME, END };
-  enum BODY_DIR { UP, DOWN, FORWARD, SIDEWAYS };
+  enum BODY_DIR { UP, DOWN, FORWARD, BACKWARD, RIGHT, LEFT };
 
   GLFWwindow *window;
   unsigned int VBO, VAO, EBO;
@@ -21,6 +23,7 @@ private:
   float deltaTime = 0.0f; // Time between current frame and last frame
   float lastFrame = 0.0f; // Time of last frame
   unsigned int height, width;
+  BODY_DIR player_movement_dir = FORWARD;
   unsigned int apples_eaten = 0;
   unsigned int total_snake_length = 3;
   unsigned int current_snake_length =
@@ -37,12 +40,13 @@ public:
   ~SnakeGame();
   // main menu
   void begin();
-  // actual game
-  void loop();
   // show score and go back to main menu
   void end();
 
 private:
+  // actual game
+  void loop();
+
   bool try_snake_eat_apple();
   bool try_handle_collision();
   void handle_input();

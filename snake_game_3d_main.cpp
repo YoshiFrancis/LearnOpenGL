@@ -27,17 +27,17 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cout << "failed to initialize GLAD\n";
     return -1;
   }
-
-  SnakeGame game(window, "body.jpg", "head.jpg", "tail.jpg", HEIGHT, WIDTH);
+  SnakeGame game(window, "snake_game_3d/textures/body.jpg",
+                 "snake_game_3d/textures/head.jpg",
+                 "snake_game_3d/textures/tail.jpg", HEIGHT, WIDTH);
   game.begin();
-
   glfwTerminate();
   return 0;
 }
@@ -45,4 +45,3 @@ int main() {
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
-

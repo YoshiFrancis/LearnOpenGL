@@ -8,7 +8,10 @@ SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
     : window(_window), body({std::string(body_fp)}),
       head({std::string(head_fp)}), tail({std::string(tail_fp)}),
       height(world_height), width(world_width),
-      shaders("shader.vs", "shader.fs"), camera(glm::vec3(0.0f, 0.0f, 3.0f)) {
+      shaders("snake_game_3d/shaders/shader.vs",
+              "snake_game_3d/shaders/shader.fs"),
+      camera(glm::vec3(0.0f, 0.0f, 3.0f)), 
+      snake_body_pos({ glm::vec3(1.0f, 1.0f, 1.0f) }){
 
   float vertices[] = {
       // positions         // texcoords
@@ -64,6 +67,8 @@ void SnakeGame::begin() { loop(); }
 
 void SnakeGame::loop() {
   while (!glfwWindowShouldClose(window)) {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -98,33 +103,60 @@ void SnakeGame::handle_input() {
     glfwSetWindowShouldClose(window, true);
 
   const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+  }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+  }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
     camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+  }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
     camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+  }
 }
 void SnakeGame::display() {
   glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // draw head and setup camera
-  // TODO
+  // settup camera
+
+  glm::mat4 projection = glm::perspective(
+      glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+
+  glm::mat4 view = camera.GetViewMatrix();
+  //
+  shaders.setMat4("projection", projection);
+  shaders.setMat4("view", view);
+  //
+  // // draw head
   head.activate();
   shaders.use();
-
-  // draw body
-  // TODO
+  glm::mat4 model = glm::translate(glm::mat4(1.0f), snake_body_pos[0]);
+  shaders.setMat4("model", model);
+  glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, (void *)2);
+  //
+  // // draw body
+  // // TODO
   body.activate();
   shaders.use();
+  for (size_t i = 1; i < current_snake_length - 1; ++i) {
+    model = glm::translate(glm::mat4(1.0f), snake_body_pos[i]);
+    shaders.setMat4("model", model);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  }
 
-  // draw tail
-  // TODO
-  tail.activate();
-  shaders.use();
+  // // draw tail
+  // // TODO
+  if (current_snake_length == total_snake_length) {
+    tail.activate();
+    shaders.use();
+    glm::mat4 model = glm::translate(glm::mat4(1.0f),
+                                     snake_body_pos[current_snake_length - 1]);
+    shaders.setMat4("model", model);
+    glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, 0);
+  }
 }
 void SnakeGame::gen_apple_pos() {}
 const glm::vec3 &SnakeGame::get_apple_pos() const { return apple_pos; }
