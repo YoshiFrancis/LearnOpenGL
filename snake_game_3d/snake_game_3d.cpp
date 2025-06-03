@@ -4,6 +4,11 @@
 
 Camera *global_camera = nullptr;
 
+std::string get_vec3_str(glm::vec3 &vec) {
+  return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ", " +
+         std::to_string(vec.z) + ")";
+}
+
 SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
                      std::string_view head_fp, std::string_view tail_fp,
                      unsigned int world_height, unsigned int world_width,
@@ -122,7 +127,7 @@ void SnakeGame::handle_movement() {
   }
 
   // add it to the previous head position
-  new_head_pos += snake_body_pos.back();
+  new_head_pos += snake_body_pos.front();
   // checking if it goes over bounds
   // no need to check all axises individually due to no diagonol movement
   if (new_head_pos.x < 0)
@@ -198,6 +203,7 @@ void SnakeGame::display() {
   // // draw head
   head.activate();
   shaders.use();
+  std::cout << "head position: " << get_vec3_str(snake_body_pos[0]) << "\n";
   glm::mat4 model = glm::translate(glm::mat4(1.0f), snake_body_pos[0]);
   shaders.setMat4("model", model);
   glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT,
@@ -207,6 +213,8 @@ void SnakeGame::display() {
   body.activate();
   shaders.use();
   for (size_t i = 1; i < current_snake_length - 1; ++i) {
+    std::cout << "body part idx " << i << ": "
+              << get_vec3_str(snake_body_pos[i]) << "\n";
     model = glm::translate(glm::mat4(1.0f), snake_body_pos[i]);
     shaders.setMat4("model", model);
     glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT,
@@ -215,12 +223,21 @@ void SnakeGame::display() {
 
   // // draw tail
   if (current_snake_length == total_snake_length) {
+    std::cout << "tail position: "
+              << get_vec3_str(snake_body_pos[current_snake_length - 1]) << '\n';
     tail.activate();
     shaders.use();
     glm::mat4 model = glm::translate(glm::mat4(1.0f),
                                      snake_body_pos[current_snake_length - 1]);
     shaders.setMat4("model", model);
     glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT,
+                   (void *)(6 * sizeof(unsigned int)));
+  } else if (current_snake_length > 1) {
+    // draw last as a body
+    model = glm::translate(glm::mat4(1.0f),
+                           snake_body_pos[current_snake_length - 1]);
+    shaders.setMat4("model", model);
+    glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT,
                    (void *)(6 * sizeof(unsigned int)));
   }
 }
