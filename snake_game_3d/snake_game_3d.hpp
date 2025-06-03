@@ -11,6 +11,7 @@
 #include <GLFW/glfw3.h>
 
 constexpr float fov = 45.0f;
+constexpr float frame_time = 1.f;
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 
 class SnakeGame {
@@ -25,6 +26,7 @@ private:
   Camera camera;
   float deltaTime = 0.0f; // Time between current frame and last frame
   float lastFrame = 0.0f; // Time of last frame
+  float time_between_frame = 0.0f;
   unsigned int width, height, length; // x, y, z boundaries respectively
   BODY_DIR player_movement_dir = FORWARD;
   unsigned int apples_eaten = 0;
@@ -39,7 +41,8 @@ private:
 public:
   SnakeGame(GLFWwindow *window, std::string_view body_fp,
             std::string_view head_fp, std::string_view tail_fp,
-            unsigned int world_height = 10, unsigned int world_width = 10);
+            unsigned int world_height = 10, unsigned int world_width = 10,
+            unsigned int world_length = 10);
   ~SnakeGame();
   // main menu
   void begin();

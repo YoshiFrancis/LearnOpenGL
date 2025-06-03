@@ -6,14 +6,15 @@ Camera *global_camera = nullptr;
 
 SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
                      std::string_view head_fp, std::string_view tail_fp,
-                     unsigned int world_height, unsigned int world_width)
+                     unsigned int world_height, unsigned int world_width,
+                     unsigned int world_length)
     : window(_window), body({std::string(body_fp)}),
       head({std::string(head_fp)}), tail({std::string(tail_fp)}),
-      height(world_height), width(world_width),
+      height(world_height), width(world_width), length(world_length),
       shaders("snake_game_3d/shaders/shader.vs",
               "snake_game_3d/shaders/shader.fs"),
       camera(glm::vec3(0.0f, 0.0f, 3.0f)),
-      snake_body_pos({glm::vec3(1.0f, 1.0f, 1.0f)}) {
+      snake_body_pos({glm::vec3(1.0f, 1.0f, 1.0f)}), snake_body_dir({FORWARD}) {
   global_camera = &camera;
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -76,18 +77,22 @@ void SnakeGame::loop() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-
-    // gets input from user and moves user acoordingly
+    time_between_frame += deltaTime;
     handle_input();
-    // handle_movement();
-
-    if (try_snake_eat_apple()) {
+    if (time_between_frame >= frame_time) {
+      time_between_frame = 0;
+      std::cout << "frame\n";
+      // gets input from user and moves user acoordingly
+      handle_movement();
+      //
+      // if (try_snake_eat_apple()) {
+      // }
+      //
+      // if (try_handle_collision()) {
+      //   // TODO
+      // }
+      //
     }
-
-    if (try_handle_collision()) {
-      // TODO
-    }
-
     display();
   }
   end();
@@ -133,10 +138,17 @@ void SnakeGame::handle_movement() {
   else if (new_head_pos.z >= length)
     new_head_pos.z = 0;
 
-  snake_body_pos.push_front(snake_body_pos.back() + new_head_pos);
+  // no movement!
+  // REMOVE LATER
+  // new_head_pos = glm::vec3(0.f, 0.f, 0.f);
+  //
+  snake_body_pos.push_front(new_head_pos);
   snake_body_dir.push_front(player_movement_dir);
 
-  if (snake_body_dir.size() > current_snake_length) {
+  if (current_snake_length < total_snake_length)
+    ++current_snake_length;
+
+  if (snake_body_pos.size() > current_snake_length) {
     snake_body_pos.pop_back();
     snake_body_dir.pop_back();
   }
