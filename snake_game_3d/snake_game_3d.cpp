@@ -2,6 +2,8 @@
 
 #include <string>
 
+Camera *global_camera = nullptr;
+
 SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
                      std::string_view head_fp, std::string_view tail_fp,
                      unsigned int world_height, unsigned int world_width)
@@ -10,9 +12,11 @@ SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
       height(world_height), width(world_width),
       shaders("snake_game_3d/shaders/shader.vs",
               "snake_game_3d/shaders/shader.fs"),
-      camera(glm::vec3(0.0f, 0.0f, 3.0f)), 
-      snake_body_pos({ glm::vec3(1.0f, 1.0f, 1.0f) }){
-
+      camera(glm::vec3(0.0f, 0.0f, 3.0f)),
+      snake_body_pos({glm::vec3(1.0f, 1.0f, 1.0f)}) {
+  global_camera = &camera;
+  glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   float vertices[] = {
       // positions         // texcoords
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 0
@@ -75,6 +79,7 @@ void SnakeGame::loop() {
 
     // gets input from user and moves user acoordingly
     handle_input();
+    // handle_movement();
 
     if (try_snake_eat_apple()) {
     }
@@ -86,6 +91,55 @@ void SnakeGame::loop() {
     display();
   }
   end();
+}
+
+void SnakeGame::handle_movement() {
+  glm::vec3 new_head_pos = glm::vec3(0.0f, 0.0f, 0.0f);
+  switch (player_movement_dir) {
+  case UP:
+    new_head_pos = glm::vec3(0.f, 1.0f, 0.f);
+    break;
+  case DOWN:
+    new_head_pos = glm::vec3(0.f, -1.0f, 0.f);
+    break;
+  case FORWARD:
+    new_head_pos = glm::vec3(0.f, 0.0f, 1.f);
+    break;
+  case BACKWARD:
+    new_head_pos = glm::vec3(0.f, 1.0f, -1.f);
+    break;
+  case RIGHT:
+    new_head_pos = glm::vec3(1.f, 0.0f, 0.f);
+    break;
+  case LEFT:
+    new_head_pos = glm::vec3(-1.f, 0.0f, 0.f);
+    break;
+  }
+
+  // add it to the previous head position
+  new_head_pos += snake_body_pos.back();
+  // checking if it goes over bounds
+  // no need to check all axises individually due to no diagonol movement
+  if (new_head_pos.x < 0)
+    new_head_pos.x = width - 1;
+  else if (new_head_pos.x >= width)
+    new_head_pos.x = 0;
+  else if (new_head_pos.y >= height)
+    new_head_pos.y = 0;
+  else if (new_head_pos.y < 0)
+    new_head_pos.y = height - 1;
+  else if (new_head_pos.z < 0)
+    new_head_pos.z = length - 1;
+  else if (new_head_pos.z >= length)
+    new_head_pos.z = 0;
+
+  snake_body_pos.push_front(snake_body_pos.back() + new_head_pos);
+  snake_body_dir.push_front(player_movement_dir);
+
+  if (snake_body_dir.size() > current_snake_length) {
+    snake_body_pos.pop_back();
+    snake_body_dir.pop_back();
+  }
 }
 
 void SnakeGame::end() { return; }
@@ -121,7 +175,6 @@ void SnakeGame::display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // settup camera
-
   glm::mat4 projection = glm::perspective(
       glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
 
@@ -135,31 +188,57 @@ void SnakeGame::display() {
   shaders.use();
   glm::mat4 model = glm::translate(glm::mat4(1.0f), snake_body_pos[0]);
   shaders.setMat4("model", model);
-  glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, (void *)2);
+  glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT,
+                 (void *)(0 * sizeof(unsigned int)));
   //
   // // draw body
-  // // TODO
   body.activate();
   shaders.use();
   for (size_t i = 1; i < current_snake_length - 1; ++i) {
     model = glm::translate(glm::mat4(1.0f), snake_body_pos[i]);
     shaders.setMat4("model", model);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT,
+                   (void *)(6 * sizeof(unsigned int)));
   }
 
   // // draw tail
-  // // TODO
   if (current_snake_length == total_snake_length) {
     tail.activate();
     shaders.use();
     glm::mat4 model = glm::translate(glm::mat4(1.0f),
                                      snake_body_pos[current_snake_length - 1]);
     shaders.setMat4("model", model);
-    glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT,
+                   (void *)(6 * sizeof(unsigned int)));
   }
 }
 void SnakeGame::gen_apple_pos() {}
 const glm::vec3 &SnakeGame::get_apple_pos() const { return apple_pos; }
-const std::vector<glm::vec3> &SnakeGame::get_snake_pos() const {
+const std::deque<glm::vec3> &SnakeGame::get_snake_pos() const {
   return snake_body_pos;
+}
+
+bool firstMouse = true;
+int lastX = 0;
+int lastY = 0;
+
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
+  float xpos = static_cast<float>(xposIn);
+  float ypos = static_cast<float>(yposIn);
+
+  if (firstMouse) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+
+  float xoffset = xpos - lastX;
+  float yoffset =
+      lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+  lastX = xpos;
+  lastY = ypos;
+
+  if (global_camera != nullptr)
+    global_camera->ProcessMouseMovement(xoffset, yoffset);
 }
