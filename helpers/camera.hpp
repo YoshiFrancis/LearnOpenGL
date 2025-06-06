@@ -6,6 +6,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <iostream>
+
 // Defines several possible options for camera movement. Used as abstraction to
 // stay away from window-system specific input methods
 enum Camera_Movement { UP, DOWN, FORWARD, BACKWARD, RIGHT, LEFT };
@@ -139,6 +141,8 @@ private:
                           // closer to 0 the more you look up or down which
                           // results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+
+    std::cout << front.x << " " << front.y << " " << front.z << "\n"; 
   }
 };
 #endif

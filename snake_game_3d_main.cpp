@@ -37,7 +37,7 @@ int main() {
   }
   SnakeGame game(window, "snake_game_3d/textures/body.jpg",
                  "snake_game_3d/textures/head.jpg",
-                 "snake_game_3d/textures/tail.jpg");
+                 "snake_game_3d/textures/tail.jpg", "snake_game_3d/textures/tail.jpg");
   game.begin();
   glfwTerminate();
   return 0;
