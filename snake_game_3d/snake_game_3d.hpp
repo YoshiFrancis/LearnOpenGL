@@ -11,7 +11,7 @@
 #include <GLFW/glfw3.h>
 
 constexpr float fov = 45.0f;
-constexpr float frame_time = 1.f;
+constexpr float frame_time = 0.5f;
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 
 class SnakeGame {

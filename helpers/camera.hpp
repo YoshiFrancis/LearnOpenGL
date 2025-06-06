@@ -142,7 +142,7 @@ private:
                           // results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
 
-    std::cout << front.x << " " << front.y << " " << front.z << "\n"; 
+    // std::cout << front.x << " " << front.y << " " << front.z << "\n"; 
   }
 };
 #endif

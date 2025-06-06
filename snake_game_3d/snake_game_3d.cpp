@@ -19,9 +19,10 @@ SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
       apple({std::string(apple_fp)}), height(world_height), width(world_width),
       length(world_length), shaders("snake_game_3d/shaders/shader.vs",
                                     "snake_game_3d/shaders/shader.fs"),
-      camera(glm::vec3(5.0f, 5.0f, world_length + 2)),
+      camera(glm::vec3(world_width / 2, world_height / 2, world_length + 2)),
       snake_body_pos({glm::vec3(width / 2, height / 2, length / 2)}),
-      snake_body_dir({FORWARD}) {
+      snake_body_dir({FORWARD}),
+      apple_pos(glm::vec3(width / 2, height / 2, length * 3 / 4)) {
   global_camera = &camera;
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -238,6 +239,7 @@ void SnakeGame::handle_input() {
     w_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !d_held_down) {
+    std::cout << "pressing d\n";
     d_held_down = true;
     if (player_movement_dir == FORWARD)
       player_movement_dir = LEFT;
@@ -249,11 +251,11 @@ void SnakeGame::handle_input() {
       player_movement_dir = FORWARD;
     else
       player_movement_dir = LEFT;
-  } else if (glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS)
+  } else if (glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS)
     d_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !a_held_down) {
-    std::cout << "d key pressed\n";
+    std::cout << "a key pressed\n";
     a_held_down = true;
     if (player_movement_dir == FORWARD)
       player_movement_dir = RIGHT;
@@ -334,8 +336,9 @@ void SnakeGame::gen_apple_pos() {
     std::uniform_int_distribution<int> rand_height(0, height - 1);
     std::uniform_int_distribution<int> rand_length(0, length - 1);
     apple_pos = glm::vec3(rand_width(gen), rand_height(gen), rand_length(gen));
-    if (check_collision(apple_pos))
+    if (!check_collision(apple_pos))
       return;
+    std::cout << "new apple position: " << get_vec3_str(apple_pos) << "\n";
   }
 
   // brute force!
@@ -343,7 +346,7 @@ void SnakeGame::gen_apple_pos() {
     for (size_t j = 0; j < height; ++j) {
       for (size_t k = 0; k < length; ++k) {
         apple_pos = glm::vec3(i, j, k);
-        if (check_collision(apple_pos))
+        if (!check_collision(apple_pos))
           return;
       }
     }
