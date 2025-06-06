@@ -90,8 +90,9 @@ void SnakeGame::loop() {
       // gets input from user and moves user acoordingly
       handle_movement();
       //
-      // if (try_snake_eat_apple()) {
-      // }
+      if (try_snake_eat_apple()) {
+        total_snake_length += 3;
+      }
       //
       // if (try_handle_collision()) {
       //   // TODO
@@ -104,7 +105,8 @@ void SnakeGame::loop() {
 }
 
 void SnakeGame::handle_movement() {
-  glm::vec3 new_head_pos = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 new_head_pos;
+  print_player_movement_dir();
   switch (player_movement_dir) {
   case UP:
     new_head_pos = glm::vec3(0.f, 1.0f, 0.f);
@@ -116,7 +118,7 @@ void SnakeGame::handle_movement() {
     new_head_pos = glm::vec3(0.f, 0.0f, 1.f);
     break;
   case BACKWARD:
-    new_head_pos = glm::vec3(0.f, 1.0f, -1.f);
+    new_head_pos = glm::vec3(0.f, 0.0f, -1.f);
     break;
   case RIGHT:
     new_head_pos = glm::vec3(1.f, 0.0f, 0.f);
@@ -147,6 +149,7 @@ void SnakeGame::handle_movement() {
   // REMOVE LATER
   // new_head_pos = glm::vec3(0.f, 0.f, 0.f);
   //
+  // std::cout << "new head pos: " << get_vec3_str(new_head_pos) << "\n";
   snake_body_pos.push_front(new_head_pos);
   snake_body_dir.push_front(player_movement_dir);
 
@@ -157,6 +160,23 @@ void SnakeGame::handle_movement() {
     snake_body_pos.pop_back();
     snake_body_dir.pop_back();
   }
+
+  // move camera
+  Camera_Movement c_movement;
+  if (player_movement_dir == UP)
+    c_movement = Camera_Movement::UP;
+  if (player_movement_dir == DOWN)
+    c_movement = Camera_Movement::DOWN;
+  if (player_movement_dir == FORWARD)
+    c_movement = Camera_Movement::FORWARD;
+  if (player_movement_dir == BACKWARD)
+    c_movement = Camera_Movement::BACKWARD;
+  if (player_movement_dir == RIGHT)
+    c_movement = Camera_Movement::RIGHT;
+  if (player_movement_dir == LEFT)
+    c_movement = Camera_Movement::LEFT;
+
+  // camera.ProcessKeyboard(c_movement, deltaTime);
 }
 
 void SnakeGame::end() { return; }
@@ -169,28 +189,81 @@ bool SnakeGame::try_handle_collision() { return false; }
 
 // get input from user and handle snake velocity/positions accordingly
 // TODO
+bool w_held_down = false;
+bool s_held_down = false;
+bool d_held_down = false;
+bool a_held_down = false;
 void SnakeGame::handle_input() {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
   const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
-  }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
-  }
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
-  }
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
-  }
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !w_held_down) {
+    w_held_down = true;
+    if (player_movement_dir == UP)
+      player_movement_dir = BACKWARD;
+    else if (player_movement_dir == BACKWARD)
+      player_movement_dir = DOWN;
+    else if (player_movement_dir == DOWN)
+      player_movement_dir = FORWARD;
+    else if (player_movement_dir == FORWARD)
+      player_movement_dir = UP;
+    else
+      player_movement_dir = UP;
+  } else if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS)
+    w_held_down = false;
+
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !s_held_down) {
+    s_held_down = true;
+    if (player_movement_dir == UP)
+      player_movement_dir = FORWARD;
+    else if (player_movement_dir == BACKWARD)
+      player_movement_dir = UP;
+    else if (player_movement_dir == DOWN)
+      player_movement_dir = BACKWARD;
+    else if (player_movement_dir == FORWARD)
+      player_movement_dir = DOWN;
+    else
+      player_movement_dir = DOWN;
+  } else if (glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS)
+    s_held_down = false;
+
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !a_held_down) {
+    a_held_down = true;
+    if (player_movement_dir == FORWARD)
+      player_movement_dir = LEFT;
+    else if (player_movement_dir == LEFT)
+      player_movement_dir = BACKWARD;
+    else if (player_movement_dir == BACKWARD)
+      player_movement_dir = RIGHT;
+    else if (player_movement_dir == RIGHT)
+      player_movement_dir = FORWARD;
+    else
+      player_movement_dir = LEFT;
+  } else if (glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS)
+    a_held_down = false;
+
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !d_held_down) {
+    std::cout << "d key pressed\n";
+    d_held_down = true;
+    if (player_movement_dir == FORWARD)
+      player_movement_dir = RIGHT;
+    else if (player_movement_dir == LEFT)
+      player_movement_dir = FORWARD;
+    else if (player_movement_dir == BACKWARD)
+      player_movement_dir = LEFT;
+    else if (player_movement_dir == RIGHT)
+      player_movement_dir = BACKWARD;
+    else
+      player_movement_dir = RIGHT;
+  } else if (glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS)
+    d_held_down = false;
 }
 void SnakeGame::display() {
   glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // local coords -> world coords -> camera view -> projection
   // settup camera
   glm::mat4 projection = glm::perspective(
       glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
@@ -203,7 +276,6 @@ void SnakeGame::display() {
   // // draw head
   head.activate();
   shaders.use();
-  std::cout << "head position: " << get_vec3_str(snake_body_pos[0]) << "\n";
   glm::mat4 model = glm::translate(glm::mat4(1.0f), snake_body_pos[0]);
   shaders.setMat4("model", model);
   glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT,
@@ -213,8 +285,6 @@ void SnakeGame::display() {
   body.activate();
   shaders.use();
   for (size_t i = 1; i < current_snake_length - 1; ++i) {
-    std::cout << "body part idx " << i << ": "
-              << get_vec3_str(snake_body_pos[i]) << "\n";
     model = glm::translate(glm::mat4(1.0f), snake_body_pos[i]);
     shaders.setMat4("model", model);
     glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT,
@@ -223,8 +293,6 @@ void SnakeGame::display() {
 
   // // draw tail
   if (current_snake_length == total_snake_length) {
-    std::cout << "tail position: "
-              << get_vec3_str(snake_body_pos[current_snake_length - 1]) << '\n';
     tail.activate();
     shaders.use();
     glm::mat4 model = glm::translate(glm::mat4(1.0f),
@@ -245,6 +313,29 @@ void SnakeGame::gen_apple_pos() {}
 const glm::vec3 &SnakeGame::get_apple_pos() const { return apple_pos; }
 const std::deque<glm::vec3> &SnakeGame::get_snake_pos() const {
   return snake_body_pos;
+}
+
+void SnakeGame::print_player_movement_dir() const {
+  switch (player_movement_dir) {
+  case UP:
+    std::cout << "up\n";
+    break;
+  case DOWN:
+    std::cout << "down\n";
+    break;
+  case FORWARD:
+    std::cout << "forward\n";
+    break;
+  case BACKWARD:
+    std::cout << "backward\n";
+    break;
+  case RIGHT:
+    std::cout << "right\n";
+    break;
+  case LEFT:
+    std::cout << "left\n";
+    break;
+  }
 }
 
 bool firstMouse = true;

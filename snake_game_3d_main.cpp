@@ -8,6 +8,7 @@
 
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
+constexpr int SNAKE_GAME_LENGTH = 10;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -36,7 +37,7 @@ int main() {
   }
   SnakeGame game(window, "snake_game_3d/textures/body.jpg",
                  "snake_game_3d/textures/head.jpg",
-                 "snake_game_3d/textures/tail.jpg", HEIGHT, WIDTH);
+                 "snake_game_3d/textures/tail.jpg");
   game.begin();
   glfwTerminate();
   return 0;

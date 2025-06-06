@@ -64,6 +64,7 @@ private:
   void gen_apple_pos();
   const glm::vec3 &get_apple_pos() const;
   const std::deque<glm::vec3> &get_snake_pos() const;
+  void print_player_movement_dir() const;
 };
 
 #endif

@@ -8,7 +8,7 @@
 
 // Defines several possible options for camera movement. Used as abstraction to
 // stay away from window-system specific input methods
-enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
+enum Camera_Movement { UP, DOWN, FORWARD, BACKWARD, RIGHT, LEFT };
 
 // Default camera values
 const float YAW = -90.0f;
@@ -70,20 +70,26 @@ public:
   // systems)
   void ProcessKeyboard(Camera_Movement direction, float deltaTime) {
     float velocity = MovementSpeed * deltaTime;
-
-    // the weird vector math so that we do not move upward while also keeping constant speed no matter where we look
-    if (direction == FORWARD)
-      Position += glm::normalize(glm::vec3(Front.x, 0.0f, Front.z)) * velocity;
-    if (direction == BACKWARD)
-      Position -= glm::normalize(glm::vec3(Front.x, 0.0f, Front.z)) * velocity;
-    if (direction == LEFT)
-      Position -= glm::normalize(glm::vec3(Right.x, 0.0f, Right.z)) * velocity;
-    if (direction == RIGHT)
-      Position += glm::normalize(glm::vec3(Right.x, 0.0f, Right.z)) * velocity;
-
-    
-
-    Position.y = 0;
+    switch(direction) {
+        case UP:
+            Position += glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
+            break;
+        case DOWN:
+            Position -= glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
+            break;
+        case FORWARD:
+            Position += glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
+            break;
+        case BACKWARD:
+            Position -= glm::vec3(0.0f, 0.0f, 1.0f) * velocity;
+            break;
+        case RIGHT:
+            Position += glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
+            break;
+        case LEFT:
+            Position -= glm::vec3(1.0f, 0.0f, 0.0f) * velocity;
+            break;
+    }
   }
 
   // processes input received from a mouse input system. Expects the offset
