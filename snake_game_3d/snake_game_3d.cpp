@@ -90,13 +90,13 @@ void SnakeGame::loop() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     time_between_frame += deltaTime;
-    if (ai == nullptr)
-        handle_input();
+    handle_input();
     if (time_between_frame >= frame_time) {
       time_between_frame = 0;
       std::cout << "frame\n";
       // gets input from user and moves user acoordingly
       if (ai != nullptr) {
+          std::cout << "calling ai get move!\n";
           BODY_DIR next_move = ai->get_next_move();
           if (next_move != BODY_DIR::NONE) 
               player_movement_dir = next_move;

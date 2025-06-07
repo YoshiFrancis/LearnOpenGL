@@ -11,22 +11,24 @@
 #include <optional>
 #include <stack>
 
-
+typedef std::tuple<int, int, int> Coord;
 
 struct Node {
-    int length;
-    int x, y, z;
+    int nth_node;
+    float length;
+    Coord pos;
     BODY_DIR curr_dir;
     Node* prev;
 
-    Node(int length_=0, int x_=0, int y_=0, int z_=0, BODY_DIR b=BODY_DIR::NONE, Node* p = nullptr) 
-        : length(length_), x(x_), y(y_), z(z_), curr_dir(b), prev(p) {}
+    Node(int nth, int length_, Coord pos_, BODY_DIR b=BODY_DIR::NONE, Node* p = nullptr) 
+        : nth_node(nth), length(length_), pos(pos_), curr_dir(b), prev(p) {}
+
     bool operator<(const Node& other) const {
         return length < other.length;
     }
 
     bool operator==(const Node& other) const {
-        return x == other.x && y == other.y && z == other.z;
+        return pos == other.pos;
     }
 };
 
