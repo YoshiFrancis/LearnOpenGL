@@ -19,9 +19,10 @@ struct Node {
     Coord pos;
     BODY_DIR curr_dir;
     Node* prev;
+    BODY_DIR move_dir;
 
     Node(int nth, int length_, Coord pos_, BODY_DIR b=BODY_DIR::NONE, Node* p = nullptr) 
-        : nth_node(nth), length(length_), pos(pos_), curr_dir(b), prev(p) {}
+        : nth_node(nth), length(length_), pos(pos_), curr_dir(b), prev(p), move_dir(b) {}
 
     bool operator<(const Node& other) const {
         return length < other.length;
@@ -56,15 +57,15 @@ public:
   SnakeGameAI(const std::deque<glm::vec3> &snake_body_pos_,
               const glm::vec3 &apple_pos_, int width_, int height_, int length_);
 
-  BODY_DIR get_next_move();
+  BODY_DIR get_next_move(BODY_DIR head_pos);
   void force_update();
 
 private:
   void generate_moveset();
   // 5 nodes to generate: 4 on side, 1 in direction already headed
   std::vector<Node*> generate_adjacent_nodes(Node& n) const;
-  bool try_check_collision(const Node& n) const;
-  float manhattan_distance(int x, int y, int z) const;
+  bool try_check_collision(Coord coord) const;
+  int manhattan_distance(int x, int y, int z) const;
 };
 
 #endif

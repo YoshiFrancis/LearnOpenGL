@@ -97,8 +97,9 @@ void SnakeGame::loop() {
       // gets input from user and moves user acoordingly
       if (ai != nullptr) {
           std::cout << "calling ai get move!\n";
-          BODY_DIR next_move = ai->get_next_move();
-          if (next_move != BODY_DIR::NONE) 
+          BODY_DIR next_move = ai->get_next_move(snake_body_dir[0]);
+          std::cout << "ai move: " << direction_str(next_move) << "\n";
+          if (next_move != BODY_DIR::NONE)
               player_movement_dir = next_move;
       }
       handle_movement();
@@ -121,26 +122,27 @@ void SnakeGame::loop() {
 
 void SnakeGame::handle_movement() {
   glm::vec3 new_head_pos;
-  print_player_movement_dir();
+  std::cout << "player movement: " << direction_str(player_movement_dir) << "\n";
   switch (player_movement_dir) {
       case BODY_DIR::UP:
-    new_head_pos = glm::vec3(0.f, 1.0f, 0.f);
-    break;
+      case BODY_DIR::NONE:
+          new_head_pos = glm::vec3(0.f, 1.0f, 0.f);
+          break;
       case BODY_DIR::DOWN:
-    new_head_pos = glm::vec3(0.f, -1.0f, 0.f);
-    break;
+          new_head_pos = glm::vec3(0.f, -1.0f, 0.f);
+          break;
       case BODY_DIR::FORWARD:
-    new_head_pos = glm::vec3(0.f, 0.0f, 1.f);
-    break;
+          new_head_pos = glm::vec3(0.f, 0.0f, 1.f);
+          break;
       case BODY_DIR::BACKWARD:
-    new_head_pos = glm::vec3(0.f, 0.0f, -1.f);
-    break;
+          new_head_pos = glm::vec3(0.f, 0.0f, -1.f);
+          break;
       case BODY_DIR::RIGHT:
-    new_head_pos = glm::vec3(1.f, 0.0f, 0.f);
-    break;
+          new_head_pos = glm::vec3(1.f, 0.0f, 0.f);
+          break;
       case BODY_DIR::LEFT:
-    new_head_pos = glm::vec3(-1.f, 0.0f, 0.f);
-    break;
+          new_head_pos = glm::vec3(-1.f, 0.0f, 0.f);
+          break;
   }
 
   // add it to the previous head position
@@ -253,7 +255,6 @@ void SnakeGame::handle_input() {
     w_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !d_held_down) {
-    std::cout << "pressing d\n";
     d_held_down = true;
     if (player_movement_dir == BODY_DIR::FORWARD)
       player_movement_dir = BODY_DIR::LEFT;
@@ -269,7 +270,6 @@ void SnakeGame::handle_input() {
     d_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !a_held_down) {
-    std::cout << "a key pressed\n";
     a_held_down = true;
     if (player_movement_dir == BODY_DIR::FORWARD)
       player_movement_dir = BODY_DIR::RIGHT;
@@ -372,27 +372,32 @@ const std::deque<glm::vec3> &SnakeGame::get_snake_pos() const {
   return snake_body_pos;
 }
 
-void SnakeGame::print_player_movement_dir() const {
-  switch (player_movement_dir) {
+std::string SnakeGame::direction_str(BODY_DIR dir) const {
+    std::string dir_str = "none";
+  switch (dir) {
       case BODY_DIR::UP:
-    std::cout << "up\n";
+    dir_str = "up";
     break;
       case BODY_DIR::DOWN:
-    std::cout << "down\n";
+    dir_str = "down";
     break;
       case BODY_DIR::FORWARD:
-    std::cout << "forward\n";
+    dir_str = "forward";
     break;
       case BODY_DIR::BACKWARD:
-    std::cout << "backward\n";
+    dir_str = "backward";
     break;
       case BODY_DIR::RIGHT:
-    std::cout << "right\n";
+    dir_str = "right";
     break;
       case BODY_DIR::LEFT:
-    std::cout << "left\n";
+    dir_str = "left";
+    break;
+      default:
+    dir_str = "none";
     break;
   }
+  return dir_str;
 }
 
 bool SnakeGame::check_collision(glm::vec3 pos, bool include_head) const {
