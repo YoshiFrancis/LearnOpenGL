@@ -21,7 +21,7 @@ SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
                                     "snake_game_3d/shaders/shader.fs"),
       camera(glm::vec3(world_width / 2, world_height / 2, world_length + 2)),
       snake_body_pos({glm::vec3(width / 2, height / 2, length / 2)}),
-      snake_body_dir({FORWARD}),
+      snake_body_dir({BODY_DIR::FORWARD}),
       apple_pos(glm::vec3(width / 2, height / 2, length * 3 / 4)) {
   global_camera = &camera;
   glfwSetCursorPosCallback(window, mouse_callback);
@@ -113,22 +113,22 @@ void SnakeGame::handle_movement() {
   glm::vec3 new_head_pos;
   print_player_movement_dir();
   switch (player_movement_dir) {
-  case UP:
+      case BODY_DIR::UP:
     new_head_pos = glm::vec3(0.f, 1.0f, 0.f);
     break;
-  case DOWN:
+      case BODY_DIR::DOWN:
     new_head_pos = glm::vec3(0.f, -1.0f, 0.f);
     break;
-  case FORWARD:
+      case BODY_DIR::FORWARD:
     new_head_pos = glm::vec3(0.f, 0.0f, 1.f);
     break;
-  case BACKWARD:
+      case BODY_DIR::BACKWARD:
     new_head_pos = glm::vec3(0.f, 0.0f, -1.f);
     break;
-  case RIGHT:
+      case BODY_DIR::RIGHT:
     new_head_pos = glm::vec3(1.f, 0.0f, 0.f);
     break;
-  case LEFT:
+      case BODY_DIR::LEFT:
     new_head_pos = glm::vec3(-1.f, 0.0f, 0.f);
     break;
   }
@@ -168,23 +168,27 @@ void SnakeGame::handle_movement() {
 
   // move camera
   Camera_Movement c_movement;
-  if (player_movement_dir == UP)
+  if (player_movement_dir == BODY_DIR::UP)
     c_movement = Camera_Movement::UP;
-  if (player_movement_dir == DOWN)
+  if (player_movement_dir == BODY_DIR::DOWN)
     c_movement = Camera_Movement::DOWN;
-  if (player_movement_dir == FORWARD)
+  if (player_movement_dir == BODY_DIR::FORWARD)
     c_movement = Camera_Movement::FORWARD;
-  if (player_movement_dir == BACKWARD)
+  if (player_movement_dir == BODY_DIR::BACKWARD)
     c_movement = Camera_Movement::BACKWARD;
-  if (player_movement_dir == RIGHT)
+  if (player_movement_dir == BODY_DIR::RIGHT)
     c_movement = Camera_Movement::RIGHT;
-  if (player_movement_dir == LEFT)
+  if (player_movement_dir == BODY_DIR::LEFT)
     c_movement = Camera_Movement::LEFT;
 
   // camera.ProcessKeyboard(c_movement, deltaTime);
 }
 
-void SnakeGame::end() { return; }
+void SnakeGame::end() {
+  std::cout << "got a total snake length of " << total_snake_length << " with "
+            << apples_eaten << "eaten!\n";
+  return;
+}
 
 // see if head collides with apple and return true if so
 bool SnakeGame::try_snake_eat_apple() { return snake_body_pos[0] == apple_pos; }
@@ -210,63 +214,63 @@ void SnakeGame::handle_input() {
   const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !s_held_down) {
     s_held_down = true;
-    if (player_movement_dir == UP)
-      player_movement_dir = BACKWARD;
-    else if (player_movement_dir == BACKWARD)
-      player_movement_dir = DOWN;
-    else if (player_movement_dir == DOWN)
-      player_movement_dir = FORWARD;
-    else if (player_movement_dir == FORWARD)
-      player_movement_dir = UP;
+    if (player_movement_dir == BODY_DIR::UP)
+      player_movement_dir = BODY_DIR::BACKWARD;
+    else if (player_movement_dir == BODY_DIR::BACKWARD)
+      player_movement_dir = BODY_DIR::DOWN;
+    else if (player_movement_dir == BODY_DIR::DOWN)
+      player_movement_dir = BODY_DIR::FORWARD;
+    else if (player_movement_dir == BODY_DIR::FORWARD)
+      player_movement_dir = BODY_DIR::UP;
     else
-      player_movement_dir = UP;
+      player_movement_dir = BODY_DIR::UP;
   } else if (glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS)
     s_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !w_held_down) {
     w_held_down = true;
-    if (player_movement_dir == UP)
-      player_movement_dir = FORWARD;
-    else if (player_movement_dir == BACKWARD)
-      player_movement_dir = UP;
-    else if (player_movement_dir == DOWN)
-      player_movement_dir = BACKWARD;
-    else if (player_movement_dir == FORWARD)
-      player_movement_dir = DOWN;
+    if (player_movement_dir == BODY_DIR::UP)
+      player_movement_dir = BODY_DIR::FORWARD;
+    else if (player_movement_dir == BODY_DIR::BACKWARD)
+      player_movement_dir = BODY_DIR::UP;
+    else if (player_movement_dir == BODY_DIR::DOWN)
+      player_movement_dir = BODY_DIR::BACKWARD;
+    else if (player_movement_dir == BODY_DIR::FORWARD)
+      player_movement_dir = BODY_DIR::DOWN;
     else
-      player_movement_dir = DOWN;
+      player_movement_dir = BODY_DIR::DOWN;
   } else if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS)
     w_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !d_held_down) {
     std::cout << "pressing d\n";
     d_held_down = true;
-    if (player_movement_dir == FORWARD)
-      player_movement_dir = LEFT;
-    else if (player_movement_dir == LEFT)
-      player_movement_dir = BACKWARD;
-    else if (player_movement_dir == BACKWARD)
-      player_movement_dir = RIGHT;
-    else if (player_movement_dir == RIGHT)
-      player_movement_dir = FORWARD;
+    if (player_movement_dir == BODY_DIR::FORWARD)
+      player_movement_dir = BODY_DIR::LEFT;
+    else if (player_movement_dir == BODY_DIR::LEFT)
+      player_movement_dir = BODY_DIR::BACKWARD;
+    else if (player_movement_dir == BODY_DIR::BACKWARD)
+      player_movement_dir = BODY_DIR::RIGHT;
+    else if (player_movement_dir == BODY_DIR::RIGHT)
+      player_movement_dir = BODY_DIR::FORWARD;
     else
-      player_movement_dir = LEFT;
+      player_movement_dir = BODY_DIR::LEFT;
   } else if (glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS)
     d_held_down = false;
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !a_held_down) {
     std::cout << "a key pressed\n";
     a_held_down = true;
-    if (player_movement_dir == FORWARD)
-      player_movement_dir = RIGHT;
-    else if (player_movement_dir == LEFT)
-      player_movement_dir = FORWARD;
-    else if (player_movement_dir == BACKWARD)
-      player_movement_dir = LEFT;
-    else if (player_movement_dir == RIGHT)
-      player_movement_dir = BACKWARD;
+    if (player_movement_dir == BODY_DIR::FORWARD)
+      player_movement_dir = BODY_DIR::RIGHT;
+    else if (player_movement_dir == BODY_DIR::LEFT)
+      player_movement_dir = BODY_DIR::FORWARD;
+    else if (player_movement_dir == BODY_DIR::BACKWARD)
+      player_movement_dir = BODY_DIR::LEFT;
+    else if (player_movement_dir == BODY_DIR::RIGHT)
+      player_movement_dir = BODY_DIR::BACKWARD;
     else
-      player_movement_dir = RIGHT;
+      player_movement_dir = BODY_DIR::RIGHT;
   } else if (glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS)
     a_held_down = false;
 }
@@ -360,22 +364,22 @@ const std::deque<glm::vec3> &SnakeGame::get_snake_pos() const {
 
 void SnakeGame::print_player_movement_dir() const {
   switch (player_movement_dir) {
-  case UP:
+      case BODY_DIR::UP:
     std::cout << "up\n";
     break;
-  case DOWN:
+      case BODY_DIR::DOWN:
     std::cout << "down\n";
     break;
-  case FORWARD:
+      case BODY_DIR::FORWARD:
     std::cout << "forward\n";
     break;
-  case BACKWARD:
+      case BODY_DIR::BACKWARD:
     std::cout << "backward\n";
     break;
-  case RIGHT:
+      case BODY_DIR::RIGHT:
     std::cout << "right\n";
     break;
-  case LEFT:
+      case BODY_DIR::LEFT:
     std::cout << "left\n";
     break;
   }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-add_library(SnakeGame snake_game_3d.cpp)
+add_library(SnakeGame snake_game_3d.cpp snake_game_ai.cpp)
 target_link_libraries(SnakeGame PRIVATE Helpers)
 target_link_libraries(SnakeGame PRIVATE glfw)
 target_include_directories(SnakeGame PUBLIC .)
