@@ -9,21 +9,30 @@
 #include <array>
 #include <deque>
 #include <optional>
-#include <queue>
+#include <stack>
+
+
 
 struct Node {
     int length;
     int x, y, z;
     BODY_DIR curr_dir;
-    const Node* prev;
+    Node* prev;
 
-    Node(int length=0, int x=0, int y=0, int z=0, BODY_DIR b=BODY_DIR::NONE, Node* p = nullptr);
+    Node(int length_=0, int x_=0, int y_=0, int z_=0, BODY_DIR b=BODY_DIR::NONE, Node* p = nullptr) 
+        : length(length_), x(x_), y(y_), z(z_), curr_dir(b), prev(p) {}
     bool operator<(const Node& other) const {
         return length < other.length;
     }
 
     bool operator==(const Node& other) const {
         return x == other.x && y == other.y && z == other.z;
+    }
+};
+
+struct CompareNodePtr {
+    bool operator()(const Node* l, const Node* r) const {
+        return l->length > r->length;  
     }
 };
 
@@ -37,7 +46,7 @@ class SnakeGameAI {
 private:
   const std::deque<glm::vec3> &snake_body_pos;
   const glm::vec3 &apple_pos;
-  std::queue<BODY_DIR> moveset;
+  std::stack<BODY_DIR> moveset;
   int width, height, length;
   BODY_DIR curr_head_dir = BODY_DIR::FORWARD;
 

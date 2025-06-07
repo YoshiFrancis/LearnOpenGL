@@ -3,17 +3,49 @@
 #include <set>
 
 #include <iostream>
+#include <queue>
 
 SnakeGameAI::SnakeGameAI(const std::deque<glm::vec3> &snake_body_pos_,
         const glm::vec3 &apple_pos_, int width_, int height_, int length_)
     : snake_body_pos(snake_body_pos_), apple_pos(apple_pos_), width(width_), height(height_), length(length_)
 { }
 
+void print_path(Node* last) {
+    std::string dir;
+    switch (last->curr_dir) {
+        case BODY_DIR::UP:
+            dir = "up\n";
+            break;
+        case BODY_DIR::DOWN:
+            dir = "down\n";
+            break;
+        case BODY_DIR::FORWARD:
+            dir = "forward\n";
+            break;
+        case BODY_DIR::BACKWARD:
+            dir = "backward\n";
+            break;
+        case BODY_DIR::RIGHT:
+            dir = "right\n";
+            break;
+        case BODY_DIR::LEFT:
+            dir = "left\n";
+            break;
+        default:
+            dir = "No dir\n";
+    }
+    while (last) {
+        std::cout << "(" << last->x << ", " << last->y << ", " << last->z << "), length: " << last->length << ", direction: " << dir;
+        last = last->prev;
+    }
+    
+}
+
 BODY_DIR SnakeGameAI::get_next_move() {
     if(moveset.size() == 0) 
         generate_moveset();
 
-    BODY_DIR next_move = moveset.front();
+    BODY_DIR next_move = moveset.top();
     moveset.pop();
     return next_move;
 }
@@ -32,7 +64,7 @@ void SnakeGameAI::generate_moveset() {
     // run A* algorithm
 
     Node target_node = Node(0, apple_pos.x, apple_pos.y, apple_pos.z);
-    std::priority_queue<Node*> q;
+    std::priority_queue<Node*, std::vector<Node*>, CompareNodePtr> q;
     std::set<Node> seen;
     Node* first_node = new Node(0, snake_body_pos[0].x, snake_body_pos[0].y, snake_body_pos[0].z, curr_head_dir, nullptr);
     q.push(first_node);
@@ -54,6 +86,11 @@ void SnakeGameAI::generate_moveset() {
     }
 
     if (*curr_node == target_node) {
+        print_path(curr_node);
+        while (curr_node) {
+            moveset.push(curr_node->curr_dir);
+            curr_node = curr_node->prev;
+        }
         std::cout << "success!\n";
     }
 }

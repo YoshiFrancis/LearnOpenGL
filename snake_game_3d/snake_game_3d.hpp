@@ -7,6 +7,7 @@
 #include "texture.hpp"
 
 #include "enums.hpp"
+#include "snake_game_ai.hpp"
 
 #include <deque>
 
@@ -39,11 +40,14 @@ private:
   std::deque<BODY_DIR> snake_body_dir;
   glm::vec3 apple_pos;
 
+  SnakeGameAI *ai = nullptr;
+
 public:
   SnakeGame(GLFWwindow *window, std::string_view body_fp,
             std::string_view head_fp, std::string_view tail_fp,
             std::string_view apple_fp, unsigned int world_height = 10,
-            unsigned int world_width = 10, unsigned int world_length = 10);
+            unsigned int world_width = 10, unsigned int world_length = 10,
+            bool use_ai = false);
   ~SnakeGame();
   // main menu
   void begin();
@@ -53,6 +57,7 @@ public:
 private:
   // actual game
   void loop();
+  void ai_loop();
 
   // loop functions
   void handle_input();

@@ -13,7 +13,7 @@ std::string get_vec3_str(glm::vec3 &vec) {
 SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
                      std::string_view head_fp, std::string_view tail_fp,
                      std::string_view apple_fp, unsigned int world_height,
-                     unsigned int world_width, unsigned int world_length)
+                     unsigned int world_width, unsigned int world_length, bool use_ai)
     : window(_window), body({std::string(body_fp)}),
       head({std::string(head_fp)}), tail({std::string(tail_fp)}),
       apple({std::string(apple_fp)}), height(world_height), width(world_width),
@@ -68,6 +68,10 @@ SnakeGame::SnakeGame(GLFWwindow *_window, std::string_view body_fp,
   glEnableVertexAttribArray(2);
 
   glEnable(GL_DEPTH_TEST);
+
+  if (use_ai) {
+      ai = new SnakeGameAI(snake_body_pos, apple_pos, width, height, length);
+  }
 }
 
 SnakeGame::~SnakeGame() {
@@ -86,11 +90,17 @@ void SnakeGame::loop() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     time_between_frame += deltaTime;
-    handle_input();
+    if (ai == nullptr)
+        handle_input();
     if (time_between_frame >= frame_time) {
       time_between_frame = 0;
       std::cout << "frame\n";
       // gets input from user and moves user acoordingly
+      if (ai != nullptr) {
+          BODY_DIR next_move = ai->get_next_move();
+          if (next_move != BODY_DIR::NONE) 
+              player_movement_dir = next_move;
+      }
       handle_movement();
       //
       if (try_snake_eat_apple()) {
